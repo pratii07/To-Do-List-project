@@ -1,86 +1,123 @@
-const input = document.getElementById('input');
-    const addbtn = document.getElementById('addbtn');
-    const alltask = document.getElementById('alltask');
-    const taskslist = document.querySelector('.tasks-list');
-    const completedtasks = document.getElementById('completedtasks');
-    const pendingtasks = document.getElementById('pendingtasks');
+const input = document.getElementById('input')
+const addbtn = document.getElementById("addbtn")
+const tasksList = document.querySelector('.tasks-list')
+const alltask = document.querySelector('#alltask')
+const completedtasks = document.querySelector('#completedtasks')
+const pendingtasks = document.querySelector('#pendingtasks')
 
-    // Retrieve tasks from localStorage (if any)
-    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+// to store task in local storage 
+const tasks = JSON.parse(localStorage.getItem('tasks')) || []
 
-    // Function to save tasks to localStorage
-    const saveTasks = () => {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-    };
+// const tasks = []
+const all_tasks = []
+const completed_Tasks =[]
 
+// to add task 
+addbtn.addEventListener('click',function(){
+    const task = input.value.trim()
 
-    // let tasks = [];
+    if(task === '') return
+    tasks.push({task:task,status:false})
+    all_tasks.push({task:task,status:false})
+    saveTasksToLocalStorage();
+    RenderTasks();
+    input.value = ''
 
-    // for adding input Text into an array(tasks)
-    addbtn.addEventListener('click', function () {
-    const task = input.value.trim();
-    if (task) {
-        tasks.push({ task, completed: false });
-        input.value = '';
-        saveTasks();
-        renderTasks();
+})
+
+// to render tasks
+function RenderTasks(){
+    tasksList.innerHTML = ''
+
+    for(let i=0;i<tasks.length;i++){
+        const taskItem = document.createElement("li")
+        taskItem.textContent = tasks[i].task
+        taskItem.classList.add('task-item')
+        tasksList.appendChild(taskItem)
+
+        show_button(taskItem,i)
     }
-    });
+}
 
-    // for rendering tasks on ui
-    const renderTasks = (filter = 'all') => {
-    let filteredTasks = [];
+// for task completion and deletion
+function show_button(taskItem,i){
+    const donebtn = document.createElement("button")
+    donebtn.textContent = 'Done'
+    donebtn.classList.add('done-btn')
 
-    if (filter === 'completed') {
-        filteredTasks = tasks.filter(task => task.completed);
-    } else if (filter === 'pending') {
-        filteredTasks = tasks.filter(task => !task.completed);
-    } else {
-        filteredTasks = tasks;
-    }
+    const deletebtn =document.createElement("button")
+    deletebtn.textContent = "X"
+    deletebtn.classList.add('delete-btn')
 
-    taskslist.innerHTML = ''; 
+    taskItem.appendChild(donebtn)
+    taskItem.appendChild(deletebtn)
 
-    filteredTasks.forEach(({ task, completed }, index) => {
-        const taskItem = document.createElement('li');
-        taskItem.className = `task-item ${completed ? 'completed' : ''}`;
-        taskItem.textContent = task;
+    tasksList.appendChild(taskItem)
 
-        if (!completed) {
-            const doneBtn = document.createElement('button');
-            doneBtn.textContent = 'Done';
-            doneBtn.className = 'done-btn';
-            doneBtn.addEventListener('click', () => completeTask(index)); 
-            taskItem.appendChild(doneBtn);
+    donebtn.addEventListener('click',function(){
+        Mark_Completed(i) 
+    }) 
+
+    deletebtn.addEventListener('click',function(){
+        tasks.splice(i,1)
+        saveTasksToLocalStorage();
+        RenderTasks()
+    })
+}
+
+// Move completed task to the completed list
+function Mark_Completed(index){
+    tasks[index].status = true;
+    completed_Tasks.push(tasks[index])
+    tasks.splice(index,1)
+    RenderTasks()
+}
+
+// to display list of tasks based on the provided data
+alltask.addEventListener('click',function(){
+    tasksList.innerHTML = ''
+    show_tasks(all_tasks,true)
+})
+
+completedtasks.addEventListener('click',function(){
+    tasksList.innerHTML = ''
+    show_tasks(completed_Tasks,false);
+})
+
+pendingtasks.addEventListener('click',function(){
+    tasksList.innerHTML = ''
+    show_pending_tasks(tasks);
+})
+
+// to display btns base on condition
+function show_tasks(TaskToShow,showbtn){
+
+    for(let i=0;i<TaskToShow.length;i++){
+        const taskItem = document.createElement('li')
+        taskItem.textContent=TaskToShow[i].task
+        taskItem.classList.add('complted-task')
+        tasksList.appendChild(taskItem)   
+
+        if(showbtn){
+            show_button(taskItem,i)
         }
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'X';
-        deleteBtn.className = 'cancel-btn.';
-        deleteBtn.addEventListener('click', () => deleteTask(index));
-        taskItem.appendChild(deleteBtn);
-
-        taskslist.appendChild(taskItem); 
-    });
     }
+}
 
-    // to mark a task as completed
-    const completeTask = (index) => {
-        tasks[index].completed = true;
-        saveTasks();
-        renderTasks();
-    };
+// Filter and display only pending tasks
+const pending_tasks = []
+function show_pending_tasks(tasks){
+    pending_tasks.length = 0;
+    
+    for(let i=0;i<tasks.length;i++){
+        if(tasks[i].status === false){
+            pending_tasks.push(tasks[i])
+        }
+    }
+    show_tasks(pending_tasks,true)
 
-    // to delete a task by index
-    const deleteTask = (index) => {
-        tasks.splice(index, 1);
-        saveTasks();
-        renderTasks();
-    };
+}
 
-    // Event listeners for filtering tasks
-    alltask.addEventListener('click', () => renderTasks('all'));
-    completedtasks.addEventListener('click', () => renderTasks('completed'));
-    pendingtasks.addEventListener('click', () => renderTasks('pending'));
-
-
+function saveTasksToLocalStorage() {
+    localStorage.setItem('tasks', JSON.stringify(tasks))
+}

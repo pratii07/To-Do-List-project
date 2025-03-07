@@ -40,10 +40,10 @@ input:hover{
 .tasks-list{
     border: 2px black solid;
     padding: 80px;
-    width: 230px;
-    /* height: 120px; */
+    width: 300px;
     border-radius: 0%20px;
     background-color: rgb(210, 200, 200);
+    list-style-type: disc;
 
 }
 .btns {
@@ -60,13 +60,24 @@ button:hover{
     background-color: black;
     color: whitesmoke;
 }
-.done-btn,.cancle-btn{
-    padding: 10px;
-    border: 1px black solide;
-    border-radius: 7px;
-    margin: 10px;
+.done-btn,.delete-btn{
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 9px;
+    border-radius: 5px;
+    letter-spacing: 2px;
 }
-#cancle{
-    padding: 14px;
-    
+
+.task-item{
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    padding: 7px;
+}
+
+.complted-task{
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    padding: 7px;
 }
